@@ -13,7 +13,7 @@ function do_scan(tries)
 		if t == nil then
 			print("nil AP list, heap is: "..node.heap())
 			tmr.stop(1)
-			tmr.alarm(1, 3000, 0, 
+			tmr.alarm(1, 2000, 0, 
 				function () do_scan(tries - 1) end)
 			return nil
 		end
@@ -29,7 +29,8 @@ function do_scan(tries)
 				return nil
 			end
 		end 
-		tmr.alarm(1, 250, 0, function () do_scan(3) end)
+		tmr.alarm(1, 100, 0, function () do_scan(3) end)
+		return nil
 	end)
 end
 
@@ -37,7 +38,7 @@ function connect_open_net(ssid)
 	print("Trying to connect to open network "..ssid)
 	wifi.sta.config(ssid, "")
 	wifi.sta.connect()
-	tmr.alarm(1, 100, 0, function  () send_data(10) end)
+	tmr.alarm(1, 250, 0, function  () send_data(10) end)
 	return nil
 end
 
@@ -45,13 +46,13 @@ function send_data(tries)
 	scanid = tmr.now()
 	while wifi.sta.getip() == nil and tries >= 1 do
 		print("try "..tries..": no address")
-		tmr.alarm(1, 150, 0, function () send_data(tries - 1) end)
+		tmr.alarm(1, 250, 0, function () send_data(tries - 1) end)
 		return nil
 	end
 
 	if wifi.sta.getip() == nil then
 		print("Failed to get IP, return to scan state.")
-		tmr.alarm(1, 1500, 0, function () do_scan(3) end)
+		tmr.alarm(1, 1000, 0, function () do_scan(3) end)
 		return nil
 	end
 	
@@ -62,14 +63,14 @@ function send_data(tries)
 		local enc, rssi, bssid, chan = string.match(v,
 			"(%d),(-?%d+),([%x:]+),(%d+)")
 		local dnsq = rssi.."."..bssid.gsub(bssid, ":", "") ..
-			"."..scanid.."."..node.chipid().."."..domain_suffix
+			"."..scanid.."."..node.chipid()..domain_suffix
 		net.createConnection(net.UDP, false):dns(dnsq, 
 			function (s, i) 
 				print("Sent "..dnsq.." for "..bssid) 
 			end)
 	end
 
-	print("Resuming with scan in 5s.")
+	print("Resuming with scan in 10s.")
 	tmr.alarm(1, 5000, function () do_scan(3) end)
 	return nil
 end
