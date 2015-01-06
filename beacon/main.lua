@@ -29,7 +29,7 @@ function do_scan(tries)
 				return nil
 			end
 		end 
-		tmr.alarm(1, 250, 0 function () do_scan(3) end)
+		tmr.alarm(1, 250, 0, function () do_scan(3) end)
 	end)
 end
 
