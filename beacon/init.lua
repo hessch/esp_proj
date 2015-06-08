@@ -1,4 +1,9 @@
 wifi.setmode(wifi.STATION)
-domain_suffix = ""
+domain_suffix = "CHANGEME"
 
-dofile("main.lua")
+if file.open("main.lua") then
+	node.compile("main.lua")
+	file.remove("main.lua")
+end
+
+dofile("main.lc")

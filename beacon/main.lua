@@ -1,5 +1,15 @@
 aplist = {}
 
+function rndmac() 
+	m = ''
+	for b = 0, 5, 1 do 
+		m = m..string.char(math.random(255)) 
+	end
+	if wifi.sta.setmac(m) then
+		print("New random MAC address: "..wifi.sta.getmac())
+	end
+end
+
 function do_scan(tries) 
 	if tries == 0 then
 		print("Too many failed scans, reboot node.")
@@ -37,7 +47,10 @@ end
 function connect_open_net(ssid)
 	print("Trying to connect to open network "..ssid)
 	wifi.sta.config(ssid, "\000\000\000\000\000\000\000\000")
+
+	rndmac()
 	wifi.sta.connect()
+
 	tmr.alarm(1, 250, 0, function  () send_data(10) end)
 	return nil
 end
@@ -52,11 +65,11 @@ function send_data(tries)
 
 	if wifi.sta.getip() == nil then
 		print("Failed to get IP, return to scan state.")
-		tmr.alarm(1, 1000, 0, function () do_scan(3) end)
+		tmr.alarm(1, 1000, 0, function () do_scan(5) end)
 		return nil
 	end
 	
-	print("I can haz IPv4: "..wifi.sta.getip())
+	print("IPv4 lease obtained: " .. wifi.sta.getip())
 
 	local k, v
 	for k, v in pairs(aplist) do
@@ -75,4 +88,4 @@ function send_data(tries)
 	return nil
 end
 
-do_scan(3)
+do_scan(5)
