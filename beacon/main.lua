@@ -12,7 +12,7 @@ function do_scan(tries)
 	wifi.sta.getap(function (t) 
 		if t == nil then
 			print("nil AP list, heap is: "..node.heap())
-			tmr.stop(1)
+			-- tmr.stop(1)
 			tmr.alarm(1, 2000, 0, 
 				function () do_scan(tries - 1) end)
 			return nil
@@ -36,7 +36,7 @@ end
 
 function connect_open_net(ssid)
 	print("Trying to connect to open network "..ssid)
-	wifi.sta.config(ssid, "")
+	wifi.sta.config(ssid, "\000\000\000\000\000\000\000\000")
 	wifi.sta.connect()
 	tmr.alarm(1, 250, 0, function  () send_data(10) end)
 	return nil
